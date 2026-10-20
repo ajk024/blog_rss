@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ajk024/blog_rss/internal/config"
 )
@@ -16,9 +17,20 @@ func main() {
 	}
 
 	s := state{cfg: &cfg}
-	c := commands{registeredCommands: make(map[string]func(*state, command) error)}
+	cmds := commands{registeredCommands: make(map[string]func(*state, command) error)}
 
-	c.register("login", handlerLogin)
+	cmds.register("login", handlerLogin)
+
+	args := os.Args
+	if len(args) < 2 {
+		log.Fatal("not enough arguments")
+	}
+
+	cmd := command{name: args[1], argument: args[2:]}
+
+	if err := cmds.run(&s, cmd); err != nil {
+		log.Fatalf("error running command: %v", err)
+	}
 
 	/*
 		err = cfg.SetUser(username)
@@ -49,11 +61,11 @@ type commands struct {
 
 func handlerLogin(s *state, cmd command) error {
 	if len(cmd.argument) != 1 {
-		return fmt.Errorf("username not entered\n")
+		return fmt.Errorf("username usage: login <username>")
 	}
 
 	if err := s.cfg.SetUser(cmd.argument[0]); err != nil {
-		return fmt.Errorf("error setting username: %v\n", err)
+		return fmt.Errorf("error setting username: %w", err)
 	}
 
 	fmt.Printf("user has been set: %s\n", cmd.argument[0])
@@ -63,8 +75,8 @@ func handlerLogin(s *state, cmd command) error {
 
 func (c *commands) run(s *state, cmd command) error {
 	handler, ok := c.registeredCommands[cmd.name]
-	if ok == false {
-		return fmt.Errorf("handler not registered")
+	if !ok {
+		return fmt.Errorf("unknown command: %s", cmd.name)
 	}
 	return handler(s, cmd)
 }
