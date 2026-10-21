@@ -1,11 +1,14 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/ajk024/blog_rss/internal/config"
+	"github.com/ajk024/blog_rss/internal/database"
+	_ "github.com/lib/pq"
 )
 
 //const username = "Dustin"
@@ -28,26 +31,19 @@ func main() {
 
 	cmd := command{name: args[1], argument: args[2:]}
 
+	//run command
 	if err := cmds.run(&s, cmd); err != nil {
 		log.Fatalf("error running command: %v", err)
 	}
 
-	/*
-		err = cfg.SetUser(username)
-		if err != nil {
-			log.Fatalf("error setting username: %v", err)
-		}*/
-
-	cfg, err = config.Read()
-	if err != nil {
-		log.Fatalf("error reading config 2: %v", err)
-	}
-
-	fmt.Println(cfg)
+	db, err := sql.Open("postgres", s.cfg.DBURL)
+	dbQueries := database.New(db)
+	s.db = dbQueries
 }
 
 type state struct {
 	cfg *config.Config
+	db  *database.Queries
 }
 
 type command struct {
