@@ -7,6 +7,8 @@ func (c *commands) run(s *state, cmd command) error {
 	if !ok {
 		return fmt.Errorf("unknown command: %s", cmd.name)
 	}
+
+	//run command handler and return result
 	return handler(s, cmd)
 }
 

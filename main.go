@@ -32,8 +32,12 @@ func main() {
 	//make command map
 	cmds := commands{registeredCommands: make(map[string]func(*state, command) error)}
 
+	//register commands
 	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
 
+	//check terminal input and enter into command struct
+	//format: <gator command arg1 arg2 ...>
 	args := os.Args
 	if len(args) < 2 {
 		log.Fatal("not enough arguments")
@@ -41,7 +45,7 @@ func main() {
 
 	cmd := command{name: args[1], argument: args[2:]}
 
-	//run command
+	//run method and command handler (within method); returns error
 	if err := cmds.run(&s, cmd); err != nil {
 		log.Fatalf("error running command: %v", err)
 	}
