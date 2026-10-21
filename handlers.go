@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// login to database with username
 func handlerLogin(s *state, cmd command) error {
 	if len(cmd.argument) != 1 {
 		return fmt.Errorf("error... username usage: login <username>")
@@ -28,6 +29,7 @@ func handlerLogin(s *state, cmd command) error {
 	return nil
 }
 
+// register a new username in database
 func handlerRegister(s *state, cmd command) error {
 	if len(cmd.argument) != 1 {
 		return fmt.Errorf("error... username usage: register <username>")
@@ -50,6 +52,37 @@ func handlerRegister(s *state, cmd command) error {
 
 	fmt.Println("user was created!")
 	fmt.Printf("%v\n", user)
+
+	return nil
+}
+
+// reset users database by deleting all users
+func handlerReset(s *state, cmd command) error {
+	if err := s.db.DeleteUsers(context.Background()); err != nil {
+		return fmt.Errorf("error deleting all users: %w", err)
+	}
+
+	fmt.Println("all users deleted from database")
+	return nil
+}
+
+// get list of usernames in database
+func handlerUsers(s *state, cmd command) error {
+	users, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		return fmt.Errorf("error getting users in database: %w", err)
+	}
+
+	//fmt.Println(users)
+	for i := 0; i < len(users); i++ {
+		fmt.Printf("* %s", users[i])
+
+		if users[i] == s.cfg.CurrentUserName {
+			fmt.Print(" (current)")
+		}
+		fmt.Println()
+
+	}
 
 	return nil
 }

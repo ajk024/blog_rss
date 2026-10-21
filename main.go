@@ -33,8 +33,7 @@ func main() {
 	cmds := commands{registeredCommands: make(map[string]func(*state, command) error)}
 
 	//register commands
-	cmds.register("login", handlerLogin)
-	cmds.register("register", handlerRegister)
+	registerCommands(&cmds)
 
 	//check terminal input and enter into command struct
 	//format: <gator command arg1 arg2 ...>
@@ -63,4 +62,11 @@ type command struct {
 
 type commands struct {
 	registeredCommands map[string]func(*state, command) error
+}
+
+func registerCommands(cmds *commands) {
+	cmds.register("login", handlerLogin)
+	cmds.register("register", handlerRegister)
+	cmds.register("reset", handlerReset)
+	cmds.register("users", handlerUsers)
 }
