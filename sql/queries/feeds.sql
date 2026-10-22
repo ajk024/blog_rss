@@ -11,4 +11,12 @@ VALUES (
 RETURNING *;
 
 -- name: GetFeeds :many
-SELECT name, url, user_id FROM feeds;
+SELECT feeds.name, feeds.url, users.name AS user_name
+FROM feeds
+INNER JOIN users ON users.id = feeds.user_id;
+
+-- name: GetFeedByURL :one
+SELECT id, name, url FROM feeds WHERE url = $1;
+
+-- name: GetFeedByID :one
+SELECT id, name, url FROM feeds WHERE id = $1;

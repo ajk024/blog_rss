@@ -55,14 +55,50 @@ func (q *Queries) AddFeed(ctx context.Context, arg AddFeedParams) (Feed, error) 
 	return i, err
 }
 
+const getFeedByID = `-- name: GetFeedByID :one
+SELECT id, name, url FROM feeds WHERE id = $1
+`
+
+type GetFeedByIDRow struct {
+	ID   uuid.UUID
+	Name string
+	Url  string
+}
+
+func (q *Queries) GetFeedByID(ctx context.Context, id uuid.UUID) (GetFeedByIDRow, error) {
+	row := q.db.QueryRowContext(ctx, getFeedByID, id)
+	var i GetFeedByIDRow
+	err := row.Scan(&i.ID, &i.Name, &i.Url)
+	return i, err
+}
+
+const getFeedByURL = `-- name: GetFeedByURL :one
+SELECT id, name, url FROM feeds WHERE url = $1
+`
+
+type GetFeedByURLRow struct {
+	ID   uuid.UUID
+	Name string
+	Url  string
+}
+
+func (q *Queries) GetFeedByURL(ctx context.Context, url string) (GetFeedByURLRow, error) {
+	row := q.db.QueryRowContext(ctx, getFeedByURL, url)
+	var i GetFeedByURLRow
+	err := row.Scan(&i.ID, &i.Name, &i.Url)
+	return i, err
+}
+
 const getFeeds = `-- name: GetFeeds :many
-SELECT name, url, user_id FROM feeds
+SELECT feeds.name, feeds.url, users.name AS user_name
+FROM feeds
+INNER JOIN users ON users.id = feeds.user_id
 `
 
 type GetFeedsRow struct {
-	Name   string
-	Url    string
-	UserID uuid.UUID
+	Name     string
+	Url      string
+	UserName string
 }
 
 func (q *Queries) GetFeeds(ctx context.Context) ([]GetFeedsRow, error) {
@@ -74,7 +110,7 @@ func (q *Queries) GetFeeds(ctx context.Context) ([]GetFeedsRow, error) {
 	var items []GetFeedsRow
 	for rows.Next() {
 		var i GetFeedsRow
-		if err := rows.Scan(&i.Name, &i.Url, &i.UserID); err != nil {
+		if err := rows.Scan(&i.Name, &i.Url, &i.UserName); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
