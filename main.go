@@ -71,4 +71,5 @@ func registerCommands(cmds *commands) {
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", handlerAggregator)
 	cmds.register("addfeed", handlerAddFeed)
+	cmds.register("feeds", handlerFeeds)
 }

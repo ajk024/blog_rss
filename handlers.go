@@ -87,7 +87,7 @@ func handlerUsers(s *state, cmd command) error {
 	return nil
 }
 
-// aggregator handler
+// retrieve content from url, aggregator
 func handlerAggregator(s *state, cmd command) error {
 	const url = "https://www.wagslane.dev/index.xml"
 	feed, err := fetchFeed(context.Background(), url)
@@ -125,6 +125,31 @@ func handlerAddFeed(s *state, cmd command) error {
 	}
 
 	fmt.Println(feed)
+
+	return nil
+}
+
+// retrieve all feeds in feeds table
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.argument) > 0 {
+		return fmt.Errorf("incorrect input. usage: feeds")
+	}
+
+	feeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		return fmt.Errorf("error getting feeds: %w", err)
+	}
+	//feeds returns  url name, url, user_id (uuid)
+
+	//retrieve username from uuid
+	for i := range len(feeds) {
+		username, err := s.db.GetName(context.Background(), feeds[i].UserID)
+		if err != nil {
+			return fmt.Errorf("error getting username from uuid: %w", err)
+		}
+		//print url name, url, and username from uuid
+		fmt.Printf("%s\t%s\t%s\n", feeds[i].Name, feeds[i].Url, username)
+	}
 
 	return nil
 }
