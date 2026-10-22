@@ -86,3 +86,15 @@ func handlerUsers(s *state, cmd command) error {
 
 	return nil
 }
+
+// aggregator handler
+func handlerAggregator(s *state, cmd command) error {
+	const url = "https://www.wagslane.dev/index.xml"
+	feed, err := fetchFeed(context.Background(), url)
+	if err != nil {
+		return fmt.Errorf("error in fetchFeed: %w", err)
+	}
+
+	fmt.Println(feed)
+	return nil
+}
