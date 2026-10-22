@@ -98,3 +98,33 @@ func handlerAggregator(s *state, cmd command) error {
 	fmt.Println(feed)
 	return nil
 }
+
+// add feed to feeds table
+func handlerAddFeed(s *state, cmd command) error {
+	//takes 2 arguments (in cmd), name and url
+	if len(cmd.argument) != 2 {
+		return fmt.Errorf("error adding feed to feeds table... usage: addfeed <feed_name feed_url>")
+	}
+
+	//look up the current user to attach the feed to
+	user, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		return fmt.Errorf("error getting current user: %w", err)
+	}
+
+	feed, err := s.db.AddFeed(context.Background(), database.AddFeedParams{
+		ID:        uuid.New(),
+		CreatedAt: time.Now().UTC(),
+		UpdatedAt: time.Now().UTC(),
+		Name:      cmd.argument[0], //feed name
+		Url:       cmd.argument[1], //feed url
+		UserID:    user.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("error adding feed: %w", err)
+	}
+
+	fmt.Println(feed)
+
+	return nil
+}

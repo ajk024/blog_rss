@@ -70,4 +70,5 @@ func registerCommands(cmds *commands) {
 	cmds.register("reset", handlerReset)
 	cmds.register("users", handlerUsers)
 	cmds.register("agg", handlerAggregator)
+	cmds.register("addfeed", handlerAddFeed)
 }
